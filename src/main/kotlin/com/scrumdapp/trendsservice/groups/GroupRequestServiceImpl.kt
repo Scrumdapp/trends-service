@@ -3,6 +3,7 @@ package com.scrumdapp.trendsservice.groups
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.scrumdapp.trendsservice.errors.BadRequestException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -19,17 +20,17 @@ data class GroupUserResponse(
 )
 
 @Service
-class GroupRequestService(
+class GroupRequestServiceImpl (
     @Value($$"${GROUP_SERVICE_URL}") private val baseUrl: String,
     @Value($$"${GROUP_FETCH_ENDPOINT}") private val fetchEndpoint: String = "/groups/{groupId}/users",
     @Value($$"${spring.application.name}") private val appName: String
-) {
+) : GroupService {
 
     private val reqBuilder = builder().baseUrl(baseUrl).build()
 
     private val mapper = ObjectMapper()
 
-    fun fetchGroupUserIds(jwt: Jwt, groupId: Long): List<Long> {
+    override fun getGroupUserIds(jwt: Jwt, groupId: Long): List<Long> {
         val uri = fetchEndpoint.replace("{groupId}", groupId.toString())
         try {
             val res = reqBuilder.get()

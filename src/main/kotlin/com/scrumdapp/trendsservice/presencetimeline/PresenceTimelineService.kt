@@ -1,7 +1,7 @@
 package com.scrumdapp.trendsservice.presencetimeline
 
 import com.scrumdapp.trendsservice.errors.BadRequestException
-import com.scrumdapp.trendsservice.groups.GroupRequestService
+import com.scrumdapp.trendsservice.groups.GroupService
 import com.scrumdapp.trendsservice.presencetimeline.dto.GroupPresenceTrends
 import com.scrumdapp.trendsservice.presencetimeline.dto.PresenceTrendDay
 import com.scrumdapp.trendsservice.presencetimeline.dto.PresenceTrendDayItem
@@ -12,25 +12,25 @@ import java.time.LocalDate
 
 @Service
 class PresenceTimelineService(
-    val timelineRepository: PresenceTimelineRepository,
-    val groupRequestService: GroupRequestService
+    private val timelineRepository: PresenceTimelineRepository,
+    private val groupService: GroupService
 ) {
 
     fun getGroupTimeline(authorization: Jwt, groupId: Long, from: LocalDate, to: LocalDate): GroupPresenceTrends {
-        val userIds = groupRequestService.fetchGroupUserIds(authorization, groupId)
+        val userIds = groupService.getGroupUserIds(authorization, groupId)
 
         // Highly presorted in database, assumptions can be made
         val timelines = timelineRepository.getTimelinePresences(groupId, from, to)
 
         if (timelines.isEmpty()) {
-            throw BadRequestException(message = "No checkpoints found in service")
+            throw BadRequestException(message = "No checkpoints found for date range")
         }
 
         val trendsMap = mutableMapOf<Long, PresenceTrendItem>()
 
         for (userId in userIds) {
             val item = PresenceTrendItem(userId, days = mutableListOf())
-            trendsMap[userId] = item;
+            trendsMap[userId] = item
         }
 
         var i = 0
@@ -85,8 +85,10 @@ class PresenceTimelineService(
     }
 
     private fun EnsureLastDayPresent(days: MutableList<PresenceTrendDay>, date: LocalDate) {
-        val lastDay = days.last()
-        if (lastDay.date >= date) return
+        if (!days.isEmpty()) {
+            val lastDay = days.last()
+            if (lastDay.date >= date) return
+        }
         days.add(PresenceTrendDay(date, mutableListOf()))
     }
 
