@@ -3,6 +3,7 @@ package com.scrumdapp.trendsservice.presencetimeline
 import com.scrumdapp.trendsservice.errors.BadRequestException
 import com.scrumdapp.trendsservice.groups.GroupService
 import com.scrumdapp.trendsservice.presencetimeline.dto.GroupPresenceTrends
+import com.scrumdapp.trendsservice.presencetimeline.dto.Presence
 import com.scrumdapp.trendsservice.presencetimeline.dto.PresenceTrendDay
 import com.scrumdapp.trendsservice.presencetimeline.dto.PresenceTrendDayItem
 import com.scrumdapp.trendsservice.presencetimeline.dto.PresenceTrendItem
@@ -55,7 +56,7 @@ class PresenceTimelineService(
                 val day = trendItem.days.last()
                 val presences = day.presences as MutableList
                 presences.add(PresenceTrendDayItem(
-                    timeline.presence,
+                    Presence.fromCode(timeline.presence ?: -1)?.name,
                     name ?: "No name",
                     sessionId
                 ))

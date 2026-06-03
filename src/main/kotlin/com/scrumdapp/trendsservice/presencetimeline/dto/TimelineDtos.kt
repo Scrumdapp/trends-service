@@ -19,7 +19,7 @@ data class PresenceTrendDay(
 )
 
 data class PresenceTrendDayItem(
-    val presence: Number?,
+    val presence: String?,
     val name: String,
     val sessionId: Long
 )
