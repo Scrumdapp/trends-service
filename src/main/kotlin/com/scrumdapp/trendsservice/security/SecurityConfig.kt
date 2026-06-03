@@ -18,8 +18,8 @@ class SecurityConfig(
         http
             .csrf { it.disable() }
             .usePassport(passportAuthFilter)
-            .authorizeHttpRequests {
-                it.requestMatchers(HttpMethod.GET, "/trends/grouptimeline/{groupId}").hasAnyAuthority("STUDENT", "COACH")
+            .authorizeHttpRequests { it
+                .requestMatchers(HttpMethod.GET, "/trends/grouptimeline/{groupId}").hasAnyAuthority("STUDENT", "COACH")
             }
 
         return http.build()

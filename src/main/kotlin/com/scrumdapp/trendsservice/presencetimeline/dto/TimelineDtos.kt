@@ -1,4 +1,4 @@
-package com.scrumdapp.trendsservice.presencetimeline
+package com.scrumdapp.trendsservice.presencetimeline.dto
 
 import java.time.LocalDate
 
@@ -9,7 +9,7 @@ data class GroupPresenceTrends(
 )
 
 data class PresenceTrendItem(
-    val userId: Int,
+    val userId: Long,
     val days: List<PresenceTrendDay>
 )
 
@@ -19,6 +19,7 @@ data class PresenceTrendDay(
 )
 
 data class PresenceTrendDayItem(
-    val presence: String,
-    val sessionId: Int
+    val presence: Number?,
+    val name: String,
+    val sessionId: Long
 )
