@@ -24,7 +24,8 @@ class PresenceTimelineService(
         val timelines = timelineRepository.getTimelinePresences(groupId, from, to)
 
         if (timelines.isEmpty()) {
-            throw BadRequestException(message = "No checkpoints found for date range")
+            val now = LocalDate.now()
+            return GroupPresenceTrends(now, now, emptyList())
         }
 
         val trendsMap = mutableMapOf<Long, PresenceTrendItem>()
