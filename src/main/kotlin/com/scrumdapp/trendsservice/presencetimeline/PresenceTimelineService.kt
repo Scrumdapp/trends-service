@@ -52,7 +52,7 @@ class PresenceTimelineService(
                 usersLeft.remove(timeline.userId)
                 val trendItem = trendsMap[timeline.userId] ?: continue
 
-                EnsureLastDayPresent(trendItem.days as MutableList<PresenceTrendDay>, timeline.date)
+                ensureLastDayPresent(trendItem.days as MutableList<PresenceTrendDay>, timeline.date)
                 val day = trendItem.days.last()
                 val presences = day.presences as MutableList
                 presences.add(PresenceTrendDayItem(
@@ -65,7 +65,7 @@ class PresenceTimelineService(
             for (userId in usersLeft) {
                 val trendItem = trendsMap[userId] ?: continue
 
-                EnsureLastDayPresent(trendItem.days as MutableList<PresenceTrendDay>, processingDate)
+                ensureLastDayPresent(trendItem.days as MutableList<PresenceTrendDay>, processingDate)
                 val day = trendItem.days.last()
                 val presences = day.presences as MutableList
                 presences.add(PresenceTrendDayItem(
@@ -85,7 +85,7 @@ class PresenceTimelineService(
         return trends
     }
 
-    private fun EnsureLastDayPresent(days: MutableList<PresenceTrendDay>, date: LocalDate) {
+    private fun ensureLastDayPresent(days: MutableList<PresenceTrendDay>, date: LocalDate) {
         if (!days.isEmpty()) {
             val lastDay = days.last()
             if (lastDay.date >= date) return
