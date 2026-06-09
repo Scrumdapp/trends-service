@@ -20,7 +20,7 @@ interface PresenceTimelineRepository : JpaRepository<Checkpoint, Long> {
         FROM Checkpoint cp
             WHERE cp.checkpointSession.groupId = :groupId
                 AND cp.checkpointSession.createdDate >= :from
-                AND cp.checkpointSession.createdDate < :to
+                AND cp.checkpointSession.createdDate <= :to
             ORDER BY cp.checkpointSession.createdDate, cp.checkpointSession.startTime
     """)
     fun getTimelinePresences(
