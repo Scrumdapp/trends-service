@@ -1,6 +1,5 @@
 package com.scrumdapp.trendsservice.presencetimeline
 
-import com.scrumdapp.trendsservice.errors.BadRequestException
 import com.scrumdapp.trendsservice.groups.GroupService
 import com.scrumdapp.trendsservice.presencetimeline.dto.GroupPresenceTrends
 import com.scrumdapp.trendsservice.presencetimeline.dto.Presence
@@ -18,7 +17,9 @@ class PresenceTimelineService(
 ) {
 
     fun getGroupTimeline(authorization: Jwt, groupId: Long, from: LocalDate, to: LocalDate): GroupPresenceTrends {
-        val userIds = groupService.getGroupUserIds(authorization, groupId)
+        val userIds = groupService.getGroupUsers(authorization, groupId)
+            .filter { !it.is_ghost }
+            .map { it.user_id }
 
         // Highly presorted in database, assumptions can be made
         val timelines = timelineRepository.getTimelinePresences(groupId, from, to)
