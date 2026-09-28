@@ -17,7 +17,11 @@ class MockGroupRequestService : GroupService {
         Logger.warn("Using Mock Service")
     }
 
-    override fun getGroupUserIds(authorization: Jwt, groupId: Long): List<Long> {
-        return listOf(1, 2, 3)
+    override fun getGroupUsers(authorization: Jwt, groupId: Long): List<GroupUserResponse> {
+        return listOf(
+            GroupUserResponse(1, 1, "John", "Doe", false),
+            GroupUserResponse(2, 1, "Teacher", "Peacher", true),
+            GroupUserResponse(3, 1, "Gary", "Goodspeed", false),
+        )
     }
 }
