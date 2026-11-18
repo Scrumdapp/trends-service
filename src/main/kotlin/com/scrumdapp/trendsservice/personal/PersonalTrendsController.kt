@@ -36,7 +36,7 @@ class PersonalTrendsController (
 
         if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
 
-        return personalTrendsService.getSummary(groupId, userId)
+        return personalTrendsService.getSummary(passport, groupId, userId)
     }
 
     @GetMapping("/{groupId}/trends/{userId}/mood")
@@ -52,7 +52,7 @@ class PersonalTrendsController (
 
         if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
 
-        return personalTrendsService.getMood(groupId, userId, fromDate, toDate)
+        return personalTrendsService.getMood(passport, groupId, userId, fromDate, toDate)
     }
 
     @GetMapping("/{groupId}/trends/{userId}/calendar")
@@ -67,7 +67,7 @@ class PersonalTrendsController (
 
         if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
 
-        return personalTrendsService.getMonthlyPresence(userId, groupId, month)
+        return personalTrendsService.getMonthlyPresence(passport, userId, groupId, month)
     }
 
     @GetMapping("/{groupId}/trends/{userId}/period")
@@ -83,6 +83,6 @@ class PersonalTrendsController (
 
         if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
 
-        return personalTrendsService.getPresencePeriod(userId, groupId, fromDate, toDate)
+        return personalTrendsService.getPresencePeriod(passport, userId, groupId, fromDate, toDate)
     }
 }

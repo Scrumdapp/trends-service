@@ -1,5 +1,8 @@
 package com.scrumdapp.trendsservice.personal
 
+import com.scrumdapp.passportplugin.annotations.Passport
+import com.scrumdapp.passportplugin.jwt.PassportContent
+import com.scrumdapp.trendsservice.errors.ForbiddenException
 import com.scrumdapp.trendsservice.personal.dto.MonthlyPresenceSummary
 import com.scrumdapp.trendsservice.personal.dto.PersonalTrendsSummary
 import com.scrumdapp.trendsservice.personal.dto.PresencePeriodSummary
@@ -19,7 +22,10 @@ class PersonalTrendsService(
     private val timelineRepository: PresenceTimelineRepository,
 ) {
 
-    fun getSummary(groupId: Long, userId: Long): PersonalTrendsSummary {
+    fun getSummary(passport: PassportContent, groupId: Long, userId: Long): PersonalTrendsSummary {
+        if(passport.userId.toLong() != userId)
+            passport.roles?.contains("COACH")?.let { if(!it) {throw ForbiddenException(message = "You can only see your own personal trends") } }
+
         val today = LocalDate.now()
 
         val currentWeekStart = today.with(
@@ -86,7 +92,10 @@ class PersonalTrendsService(
         )
     }
 
-    fun getMood(groupId: Long, userId: Long, fromDate: LocalDate, toDate: LocalDate): StarsTrendSummary {
+    fun getMood(passport: PassportContent, groupId: Long, userId: Long, fromDate: LocalDate, toDate: LocalDate): StarsTrendSummary {
+        if(passport.userId.toLong() != userId)
+            passport.roles?.contains("COACH")?.let { if(!it) {throw ForbiddenException(message = "You can only see your own personal trends") } }
+
         require(!fromDate.isAfter(toDate)) {
             "fromDate cannot be after toDate"
         }
@@ -120,7 +129,9 @@ class PersonalTrendsService(
         )
     }
 
-    fun getMonthlyPresence(userId: Long, groupId: Long, month: YearMonth): MonthlyPresenceSummary {
+    fun getMonthlyPresence(passport: PassportContent, userId: Long, groupId: Long, month: YearMonth): MonthlyPresenceSummary {
+        if(passport.userId.toLong() != userId)
+            passport.roles?.contains("COACH")?.let { if(!it) {throw ForbiddenException(message = "You can only see your own personal trends") } }
         val from = month.atDay(1)
         val to = month.atEndOfMonth()
 
@@ -172,7 +183,10 @@ class PersonalTrendsService(
         )
     }
 
-    fun getPresencePeriod(userId: Long, groupId: Long, fromDate: LocalDate, toDate: LocalDate): PresencePeriodSummary {
+    fun getPresencePeriod(passport: PassportContent, userId: Long, groupId: Long, fromDate: LocalDate, toDate: LocalDate): PresencePeriodSummary {
+        if(passport.userId.toLong() != userId)
+            passport.roles?.contains("COACH")?.let { if(!it) {throw ForbiddenException(message = "You can only see your own personal trends") } }
+
         require(!fromDate.isAfter(toDate)) {
             "fromDate cannot be after toDate"
         }
