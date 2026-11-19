@@ -72,8 +72,8 @@ class PersonalTrendsController (
     fun getPresencePeriod(
         @PathVariable groupId: Long,
         @PathVariable userId: Long,
-        @RequestParam("fromDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate?,
-        @RequestParam("toDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?,
+        @RequestParam("fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate?,
+        @RequestParam("toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?,
         @Passport passport: PassportContent,
     ): PresencePeriodSummary {
         if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
