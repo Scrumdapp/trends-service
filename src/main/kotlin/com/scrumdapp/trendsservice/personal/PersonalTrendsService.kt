@@ -1,5 +1,6 @@
 package com.scrumdapp.trendsservice.personal
 
+import com.scrumdapp.trendsservice.errors.BadRequestException
 import com.scrumdapp.trendsservice.personal.dto.MonthlyPresenceSummary
 import com.scrumdapp.trendsservice.personal.dto.PersonalTrendsSummary
 import com.scrumdapp.trendsservice.personal.dto.PresencePeriodSummary
@@ -87,8 +88,8 @@ class PersonalTrendsService(
     }
 
     fun getMood(groupId: Long, userId: Long, fromDate: LocalDate, toDate: LocalDate): StarsTrendSummary {
-        require(!fromDate.isAfter(toDate)) {
-            "fromDate cannot be after toDate"
+        if(!fromDate.isAfter(toDate)) {
+            throw BadRequestException(message = "fromDate cannot be after toDate")
         }
 
         val timelines = timelineRepository.getTimelinePresences(
@@ -173,8 +174,8 @@ class PersonalTrendsService(
     }
 
     fun getPresencePeriod(userId: Long, groupId: Long, fromDate: LocalDate, toDate: LocalDate): PresencePeriodSummary {
-        require(!fromDate.isAfter(toDate)) {
-            "fromDate cannot be after toDate"
+        if(!fromDate.isAfter(toDate)) {
+            throw BadRequestException(message = "fromDate cannot be after toDate")
         }
 
         val timelines = timelineRepository.getTimelinePresences(
