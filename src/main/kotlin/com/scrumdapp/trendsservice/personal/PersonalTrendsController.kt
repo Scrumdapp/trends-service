@@ -1,16 +1,14 @@
 package com.scrumdapp.trendsservice.personal
 
-import com.scrumdapp.passportplugin.annotations.Passport
+import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
+import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
-import com.scrumdapp.trendsservice.errors.ForbiddenException
-import com.scrumdapp.trendsservice.errors.ServerFaultException
+import com.scrumdapp.trendsservice.errors.BadRequestException
 import com.scrumdapp.trendsservice.personal.dto.MonthlyPresenceSummary
 import com.scrumdapp.trendsservice.personal.dto.PersonalTrendsSummary
 import com.scrumdapp.trendsservice.personal.dto.PresencePeriodSummary
 import com.scrumdapp.trendsservice.personal.dto.StarsTrendSummary
 import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -20,68 +18,60 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/groups/{groupId}/trends/{userId}")
 class PersonalTrendsController (
     val personalTrendsService: PersonalTrendsService
 ) {
 
-    @GetMapping("/{groupId}/trends/{userId}/summary")
+    @IsInGroup
+    @GetMapping("/summary")
     fun getPersonalTrendsSummary(
         @PathVariable groupId: Long,
         @PathVariable userId: Long,
         @Passport passport: PassportContent,
     ): PersonalTrendsSummary {
-        SecurityContextHolder.getContext().authentication?.principal as? Jwt
-            ?: throw ServerFaultException(message = "Auth principal couldn't be found or isn't a valid jwt. To prevent the endpoint is protected.")
-
-        if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
-
         return personalTrendsService.getSummary(passport, groupId, userId)
     }
 
-    @GetMapping("/{groupId}/trends/{userId}/mood")
+    @IsInGroup
+    @GetMapping("/mood")
     fun getPersonalTrendsMood(
         @PathVariable groupId: Long,
         @PathVariable userId: Long,
-        @RequestParam("fromDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
-        @RequestParam("toDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate,
+        @RequestParam("fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate?,
+        @RequestParam("toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?,
         @Passport passport: PassportContent,
     ): StarsTrendSummary {
-        SecurityContextHolder.getContext().authentication?.principal as? Jwt
-            ?: throw ServerFaultException(message = "Auth principal couldn't be found or isn't a valid jwt. To prevent the endpoint is protected.")
+        if (fromDate == null) throw BadRequestException(message="Missing query parameter 'from'")
 
-        if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
+        if (toDate == null) throw BadRequestException(message="Missing query parameter 'to'")
 
         return personalTrendsService.getMood(passport, groupId, userId, fromDate, toDate)
     }
 
-    @GetMapping("/{groupId}/trends/{userId}/calendar")
+    @IsInGroup
+    @GetMapping("/calendar")
     fun getMonthlyPresence(
         @PathVariable groupId: Long,
         @PathVariable userId: Long,
         @RequestParam month: YearMonth,
         @Passport passport: PassportContent,
     ): MonthlyPresenceSummary {
-        SecurityContextHolder.getContext().authentication?.principal as? Jwt
-            ?: throw ServerFaultException(message = "Auth principal couldn't be found or isn't a valid jwt. To prevent the endpoint is protected.")
-
-        if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
-
         return personalTrendsService.getMonthlyPresence(passport, userId, groupId, month)
     }
 
-    @GetMapping("/{groupId}/trends/{userId}/period")
+    @IsInGroup
+    @GetMapping("/period")
     fun getPresencePeriod(
         @PathVariable groupId: Long,
         @PathVariable userId: Long,
-        @RequestParam("fromDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate,
-        @RequestParam("toDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate,
+        @RequestParam("fromDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate?,
+        @RequestParam("toDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?,
         @Passport passport: PassportContent,
     ): PresencePeriodSummary {
-        SecurityContextHolder.getContext().authentication?.principal as? Jwt
-            ?: throw ServerFaultException(message = "Auth principal couldn't be found or isn't a valid jwt. To prevent the endpoint is protected.")
+        if (fromDate == null) throw BadRequestException(message="Missing query parameter 'from'")
 
-        if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
+        if (toDate == null) throw BadRequestException(message="Missing query parameter 'to'")
 
         return personalTrendsService.getPresencePeriod(passport, userId, groupId, fromDate, toDate)
     }
