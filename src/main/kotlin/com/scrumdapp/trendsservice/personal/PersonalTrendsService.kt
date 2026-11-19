@@ -88,7 +88,7 @@ class PersonalTrendsService(
     }
 
     fun getMood(groupId: Long, userId: Long, fromDate: LocalDate, toDate: LocalDate): StarsTrendSummary {
-        if(!fromDate.isAfter(toDate)) {
+        if(fromDate.isAfter(toDate)) {
             throw BadRequestException(message = "fromDate cannot be after toDate")
         }
 
@@ -174,7 +174,7 @@ class PersonalTrendsService(
     }
 
     fun getPresencePeriod(userId: Long, groupId: Long, fromDate: LocalDate, toDate: LocalDate): PresencePeriodSummary {
-        if(!fromDate.isAfter(toDate)) {
+        if(fromDate.isAfter(toDate)) {
             throw BadRequestException(message = "fromDate cannot be after toDate")
         }
 
