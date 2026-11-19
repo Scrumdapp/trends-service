@@ -3,9 +3,13 @@ package com.scrumdapp.trendsservice.personal
 import com.scrumdapp.trendsservice.errors.BadRequestException
 import com.scrumdapp.trendsservice.personal.dto.MonthlyPresenceSummary
 import com.scrumdapp.trendsservice.personal.dto.PersonalTrendsSummary
+import com.scrumdapp.trendsservice.personal.dto.PresenceDay
+import com.scrumdapp.trendsservice.personal.dto.PresenceDetail
+import com.scrumdapp.trendsservice.personal.dto.PresencePeriodPoint
 import com.scrumdapp.trendsservice.personal.dto.PresencePeriodSummary
 import com.scrumdapp.trendsservice.personal.dto.PresenceSummary
 import com.scrumdapp.trendsservice.personal.dto.StarsSummary
+import com.scrumdapp.trendsservice.personal.dto.StarsTrendPoint
 import com.scrumdapp.trendsservice.personal.dto.StarsTrendSummary
 import com.scrumdapp.trendsservice.presencetimeline.PresenceTimelineRepository
 import com.scrumdapp.trendsservice.presencetimeline.dto.Presence
@@ -105,10 +109,10 @@ class PersonalTrendsService(
         val scores = userTimelines.mapNotNull { it.stars }
 
         val points = userTimelines.map { timeline ->
-            mapOf(
-                "date" to timeline.date.toString(),
-                "session_name" to (timeline.sessionName ?: "No name"),
-                "score" to timeline.stars!!.toString()
+            StarsTrendPoint(
+                date = timeline.date.toString(),
+                sessionName = timeline.sessionName ?: "No name",
+                score = timeline.stars.toString()
             )
         }
 
@@ -137,7 +141,7 @@ class PersonalTrendsService(
             .map { (date, dailyTimelines) ->
 
                 val sessions = dailyTimelines
-                    .distinctBy { it.sessionId.toString() }
+                    .distinctBy { it.sessionId }
 
                 val details = sessions.map { session ->
                     val userTimeline = dailyTimelines.firstOrNull {
@@ -155,15 +159,15 @@ class PersonalTrendsService(
                         else -> "absent"
                     }
 
-                    mapOf(
-                        "name" to (session.sessionName ?: "No name"),
-                        "status" to status
+                    PresenceDetail(
+                        name = session.sessionName ?: "No name",
+                        status = status
                     )
                 }
 
-                mapOf(
-                    "date" to date.toString(),
-                    "details" to details.toString(),
+                PresenceDay(
+                    date = date.toString(),
+                    details = details
                 )
             }
 
@@ -186,7 +190,7 @@ class PersonalTrendsService(
 
         val sessions = timelines.groupBy { it.date to it.sessionId }
 
-        val dataPoints = mutableListOf<Map<String, String>>()
+        val dataPoints = mutableListOf<PresencePeriodPoint>()
         var periodStart = fromDate
 
         while (!periodStart.isAfter(toDate)) {
@@ -215,14 +219,14 @@ class PersonalTrendsService(
                 }
 
             dataPoints.add(
-                mapOf(
-                    "from_date" to periodStart.toString(),
-                    "to_date" to periodEnd.toString(),
-                    "present" to present.toString(),
-                    "sick" to sick.toString(),
-                    "late" to late.toString(),
-                    "absent" to absent.toString(),
-                    "no_data" to noData.toString()
+                PresencePeriodPoint(
+                    fromDate = periodStart.toString(),
+                    toDate = periodEnd.toString(),
+                    present = present,
+                    sick = sick,
+                    late = late,
+                    absent = absent,
+                    noData = noData
                 )
             )
 
