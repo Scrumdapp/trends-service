@@ -12,5 +12,5 @@ data class StarsTrendSummary(
 
     val average: Double,
     val count: Int,
-    val points: List<Map<String, Any>>
+    val points: List<Map<String, String>>
 )

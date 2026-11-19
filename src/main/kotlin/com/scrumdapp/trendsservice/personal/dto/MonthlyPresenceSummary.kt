@@ -2,5 +2,5 @@ package com.scrumdapp.trendsservice.personal.dto
 
 data class MonthlyPresenceSummary(
     val month: String,
-    val days: List<Map<String, Any>>
+    val days: List<Map<String, String>>
 )

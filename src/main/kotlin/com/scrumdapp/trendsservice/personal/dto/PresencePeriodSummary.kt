@@ -11,5 +11,5 @@ data class PresencePeriodSummary(
     val toDate: LocalDate,
 
     @JsonProperty("data_points")
-    val dataPoints: List<Map<String, Any>>
+    val dataPoints: List<Map<String, String>>
 )

@@ -4,6 +4,7 @@ import com.scrumdapp.passportplugin.annotations.groupAccess.IsInGroup
 import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
 import com.scrumdapp.trendsservice.errors.BadRequestException
+import com.scrumdapp.trendsservice.errors.ForbiddenException
 import com.scrumdapp.trendsservice.personal.dto.MonthlyPresenceSummary
 import com.scrumdapp.trendsservice.personal.dto.PersonalTrendsSummary
 import com.scrumdapp.trendsservice.personal.dto.PresencePeriodSummary
@@ -30,7 +31,9 @@ class PersonalTrendsController (
         @PathVariable userId: Long,
         @Passport passport: PassportContent,
     ): PersonalTrendsSummary {
-        return personalTrendsService.getSummary(passport, groupId, userId)
+        if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
+
+        return personalTrendsService.getSummary(groupId, userId)
     }
 
     @IsInGroup
@@ -42,11 +45,13 @@ class PersonalTrendsController (
         @RequestParam("toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?,
         @Passport passport: PassportContent,
     ): StarsTrendSummary {
+        if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
+
         if (fromDate == null) throw BadRequestException(message="Missing query parameter 'from'")
 
         if (toDate == null) throw BadRequestException(message="Missing query parameter 'to'")
 
-        return personalTrendsService.getMood(passport, groupId, userId, fromDate, toDate)
+        return personalTrendsService.getMood(groupId, userId, fromDate, toDate)
     }
 
     @IsInGroup
@@ -57,7 +62,9 @@ class PersonalTrendsController (
         @RequestParam month: YearMonth,
         @Passport passport: PassportContent,
     ): MonthlyPresenceSummary {
-        return personalTrendsService.getMonthlyPresence(passport, userId, groupId, month)
+        if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
+
+        return personalTrendsService.getMonthlyPresence(userId, groupId, month)
     }
 
     @IsInGroup
@@ -69,10 +76,12 @@ class PersonalTrendsController (
         @RequestParam("toDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?,
         @Passport passport: PassportContent,
     ): PresencePeriodSummary {
+        if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
+
         if (fromDate == null) throw BadRequestException(message="Missing query parameter 'from'")
 
         if (toDate == null) throw BadRequestException(message="Missing query parameter 'to'")
 
-        return personalTrendsService.getPresencePeriod(passport, userId, groupId, fromDate, toDate)
+        return personalTrendsService.getPresencePeriod(userId, groupId, fromDate, toDate)
     }
 }

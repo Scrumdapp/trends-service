@@ -1,8 +1,5 @@
 package com.scrumdapp.trendsservice.personal
 
-import com.scrumdapp.passportplugin.annotations.Passport
-import com.scrumdapp.passportplugin.jwt.PassportContent
-import com.scrumdapp.trendsservice.errors.ForbiddenException
 import com.scrumdapp.trendsservice.personal.dto.MonthlyPresenceSummary
 import com.scrumdapp.trendsservice.personal.dto.PersonalTrendsSummary
 import com.scrumdapp.trendsservice.personal.dto.PresencePeriodSummary
@@ -22,10 +19,7 @@ class PersonalTrendsService(
     private val timelineRepository: PresenceTimelineRepository,
 ) {
 
-    fun getSummary(passport: PassportContent, groupId: Long, userId: Long): PersonalTrendsSummary {
-        if(passport.userId.toLong() != userId)
-            passport.roles?.contains("COACH")?.let { if(!it) {throw ForbiddenException(message = "You can only see your own personal trends") } }
-
+    fun getSummary(groupId: Long, userId: Long): PersonalTrendsSummary {
         val today = LocalDate.now()
 
         val currentWeekStart = today.with(
@@ -92,10 +86,7 @@ class PersonalTrendsService(
         )
     }
 
-    fun getMood(passport: PassportContent, groupId: Long, userId: Long, fromDate: LocalDate, toDate: LocalDate): StarsTrendSummary {
-        if(passport.userId.toLong() != userId)
-            passport.roles?.contains("COACH")?.let { if(!it) {throw ForbiddenException(message = "You can only see your own personal trends") } }
-
+    fun getMood(groupId: Long, userId: Long, fromDate: LocalDate, toDate: LocalDate): StarsTrendSummary {
         require(!fromDate.isAfter(toDate)) {
             "fromDate cannot be after toDate"
         }
@@ -114,9 +105,9 @@ class PersonalTrendsService(
 
         val points = userTimelines.map { timeline ->
             mapOf(
-                "date" to timeline.date,
+                "date" to timeline.date.toString(),
                 "session_name" to (timeline.sessionName ?: "No name"),
-                "score" to timeline.stars!!
+                "score" to timeline.stars!!.toString()
             )
         }
 
@@ -129,9 +120,7 @@ class PersonalTrendsService(
         )
     }
 
-    fun getMonthlyPresence(passport: PassportContent, userId: Long, groupId: Long, month: YearMonth): MonthlyPresenceSummary {
-        if(passport.userId.toLong() != userId)
-            passport.roles?.contains("COACH")?.let { if(!it) {throw ForbiddenException(message = "You can only see your own personal trends") } }
+    fun getMonthlyPresence(userId: Long, groupId: Long, month: YearMonth): MonthlyPresenceSummary {
         val from = month.atDay(1)
         val to = month.atEndOfMonth()
 
@@ -147,7 +136,7 @@ class PersonalTrendsService(
             .map { (date, dailyTimelines) ->
 
                 val sessions = dailyTimelines
-                    .distinctBy { it.sessionId }
+                    .distinctBy { it.sessionId.toString() }
 
                 val details = sessions.map { session ->
                     val userTimeline = dailyTimelines.firstOrNull {
@@ -172,8 +161,8 @@ class PersonalTrendsService(
                 }
 
                 mapOf(
-                    "date" to date,
-                    "details" to details
+                    "date" to date.toString(),
+                    "details" to details.toString(),
                 )
             }
 
@@ -183,10 +172,7 @@ class PersonalTrendsService(
         )
     }
 
-    fun getPresencePeriod(passport: PassportContent, userId: Long, groupId: Long, fromDate: LocalDate, toDate: LocalDate): PresencePeriodSummary {
-        if(passport.userId.toLong() != userId)
-            passport.roles?.contains("COACH")?.let { if(!it) {throw ForbiddenException(message = "You can only see your own personal trends") } }
-
+    fun getPresencePeriod(userId: Long, groupId: Long, fromDate: LocalDate, toDate: LocalDate): PresencePeriodSummary {
         require(!fromDate.isAfter(toDate)) {
             "fromDate cannot be after toDate"
         }
@@ -199,7 +185,7 @@ class PersonalTrendsService(
 
         val sessions = timelines.groupBy { it.date to it.sessionId }
 
-        val dataPoints = mutableListOf<Map<String, Any>>()
+        val dataPoints = mutableListOf<Map<String, String>>()
         var periodStart = fromDate
 
         while (!periodStart.isAfter(toDate)) {
@@ -229,13 +215,13 @@ class PersonalTrendsService(
 
             dataPoints.add(
                 mapOf(
-                    "from_date" to periodStart,
-                    "to_date" to periodEnd,
-                    "present" to present,
-                    "sick" to sick,
-                    "late" to late,
-                    "absent" to absent,
-                    "no_data" to noData
+                    "from_date" to periodStart.toString(),
+                    "to_date" to periodEnd.toString(),
+                    "present" to present.toString(),
+                    "sick" to sick.toString(),
+                    "late" to late.toString(),
+                    "absent" to absent.toString(),
+                    "no_data" to noData.toString()
                 )
             )
 
