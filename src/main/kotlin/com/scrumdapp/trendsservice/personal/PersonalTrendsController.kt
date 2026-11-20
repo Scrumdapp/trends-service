@@ -28,9 +28,10 @@ class PersonalTrendsController (
     @GetMapping("/summary")
     fun getPersonalTrendsSummary(
         @PathVariable groupId: Long,
-        @PathVariable userId: Long,
+        @PathVariable("userId") userIdStr: String,
         @Passport passport: PassportContent,
     ): PersonalTrendsSummary {
+        val userId = if (userIdStr == "@me") passport.userId else userIdStr.toLong()
         if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
 
         return personalTrendsService.getSummary(groupId, userId)
@@ -40,11 +41,12 @@ class PersonalTrendsController (
     @GetMapping("/mood")
     fun getPersonalTrendsMood(
         @PathVariable groupId: Long,
-        @PathVariable userId: Long,
+        @PathVariable("userId") userIdStr: String,
         @RequestParam("fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate?,
         @RequestParam("toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?,
         @Passport passport: PassportContent,
     ): StarsTrendSummary {
+        val userId = if (userIdStr == "@me") passport.userId else userIdStr.toLong()
         if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
 
         if (fromDate == null) throw BadRequestException(message="Missing query parameter 'from'")
@@ -58,10 +60,11 @@ class PersonalTrendsController (
     @GetMapping("/calendar")
     fun getMonthlyPresence(
         @PathVariable groupId: Long,
-        @PathVariable userId: Long,
+        @PathVariable("userId") userIdStr: String,
         @RequestParam month: YearMonth,
         @Passport passport: PassportContent,
     ): MonthlyPresenceSummary {
+        val userId = if (userIdStr == "@me") passport.userId else userIdStr.toLong()
         if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
 
         return personalTrendsService.getMonthlyPresence(userId, groupId, month)
@@ -71,11 +74,12 @@ class PersonalTrendsController (
     @GetMapping("/period")
     fun getPresencePeriod(
         @PathVariable groupId: Long,
-        @PathVariable userId: Long,
+        @PathVariable("userId") userIdStr: String,
         @RequestParam("fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) fromDate: LocalDate?,
         @RequestParam("toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) toDate: LocalDate?,
         @Passport passport: PassportContent,
     ): PresencePeriodSummary {
+        val userId = if (userIdStr == "@me") passport.userId else userIdStr.toLong()
         if(passport.userId != userId && !passport.roles.contains("COACH")) {throw ForbiddenException(message = "You can only see your own personal trends")}
 
         if (fromDate == null) throw BadRequestException(message="Missing query parameter 'from'")
