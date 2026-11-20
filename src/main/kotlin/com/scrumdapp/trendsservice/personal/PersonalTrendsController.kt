@@ -19,7 +19,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 @RestController
-@RequestMapping("/groups/{groupId}/trends/{userId}")
+@RequestMapping("/groups/{groupId}/trends/users/{userId}")
 class PersonalTrendsController (
     val personalTrendsService: PersonalTrendsService
 ) {
