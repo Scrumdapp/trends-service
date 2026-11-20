@@ -15,7 +15,8 @@ interface PresenceTimelineRepository : JpaRepository<Checkpoint, Long> {
                 cp.checkpointSession.startTime,
                 cp.checkpointSession.id,
                 cp.checkpointSession.name,
-                cp.presence
+                cp.presence,
+                cp.stars
             )
         FROM Checkpoint cp
             WHERE cp.checkpointSession.groupId = :groupId

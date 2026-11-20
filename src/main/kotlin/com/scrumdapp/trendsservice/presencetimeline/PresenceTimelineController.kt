@@ -1,6 +1,6 @@
 package com.scrumdapp.trendsservice.presencetimeline
 
-import com.scrumdapp.passportplugin.annotations.Passport
+import com.scrumdapp.passportplugin.annotations.passportController.Passport
 import com.scrumdapp.passportplugin.jwt.PassportContent
 import com.scrumdapp.trendsservice.errors.BadRequestException
 import com.scrumdapp.trendsservice.errors.ForbiddenException
@@ -31,8 +31,6 @@ class PresenceTimelineController (
     ): GroupPresenceTrends {
         val jwt = SecurityContextHolder.getContext().authentication?.principal as? Jwt
             ?: throw ServerFaultException(message = "Auth principal couldn't be found or isn't a valid jwt. To prevent the endpoint is protected.")
-
-        if (passport.userGroups?.contains(groupId.toInt()) == false) throw ForbiddenException(message = "You don't have access to this group")
 
         if (fromDate == null) {
             throw BadRequestException(message="Missing query parameter 'from'")

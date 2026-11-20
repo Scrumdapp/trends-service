@@ -20,6 +20,7 @@ class SecurityConfig(
             .usePassport(passportAuthFilter)
             .authorizeHttpRequests { it
                 .requestMatchers(HttpMethod.GET, "/trends/grouptimeline/{groupId}").hasAnyAuthority("STUDENT", "COACH")
+                .requestMatchers(HttpMethod.GET, "/groups/{groupId}/trends/{userId}/**").hasAnyAuthority("STUDENT", "COACH")
             }
 
         return http.build()

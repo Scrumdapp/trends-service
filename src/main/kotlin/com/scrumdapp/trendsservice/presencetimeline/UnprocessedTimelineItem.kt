@@ -9,5 +9,6 @@ data class UnprocessedTimelineItem(
     val startedTime: LocalTime,
     val sessionId: Long,
     val sessionName: String?,
-    val presence: Int?
+    val presence: Int?,
+    val stars: Int?
 )
