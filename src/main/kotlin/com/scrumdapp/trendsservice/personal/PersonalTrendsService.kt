@@ -51,6 +51,8 @@ class PersonalTrendsService(
         val lastMonth = PresenceCounter()
 
         for (timeline in timelines) {
+            if (timeline.userId != userId) continue
+
             val date = timeline.date
             val presence = timeline.presence
 
@@ -150,12 +152,11 @@ class PersonalTrendsService(
                     }
 
                     val status = when (
-                        Presence.fromCode(userTimeline?.presence ?: -1)?.name
+                        Presence.fromCode(userTimeline?.presence ?: -1)
                     ) {
-                        "ON_TIME" -> "present"
-                        "VERIFIED_LATE" -> "late"
-                        "SICK" -> "sick"
-                        "ABSENT" -> "absent"
+                        Presence.ON_TIME, Presence.ONLINE -> "present"
+                        Presence.LATE, Presence.VERIFIED_LATE -> "late"
+                        Presence.SICK -> "sick"
                         else -> "absent"
                     }
 
@@ -202,18 +203,19 @@ class PersonalTrendsService(
             var absent = 0
             var noData = 0
 
-            sessions
-                .values
+            sessions.entries
+                .filter { (key, _) -> key.first in periodStart..periodEnd }
+                .map { it.value }
                 .forEach { sessionTimelines ->
                     val userTimeline = sessionTimelines.firstOrNull {
                         it.userId == userId
                     }
 
-                    when (Presence.fromCode(userTimeline?.presence ?: -1)?.name) {
-                        "ON_TIME" -> present++
-                        "VERIFIED_LATE" -> late++
-                        "SICK" -> sick++
-                        "ABSENT" -> absent++
+                    when (Presence.fromCode(userTimeline?.presence ?: -1)) {
+                        Presence.ON_TIME, Presence.ONLINE -> present++
+                        Presence.LATE, Presence.VERIFIED_LATE -> late++
+                        Presence.SICK -> sick++
+                        Presence.ABSENT, Presence.VERIFIED_ABSENT -> absent++
                         else -> noData++
                     }
                 }
